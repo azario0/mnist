@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MNIST Digit Recognizer</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/p5.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        #canvas-container {
+            margin: 1rem 0;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Draw a Digit</h1>
+        <div id="canvas-container"></div>
+        <button onclick="predict()">Predict</button>
+        <button onclick="clearCanvas()">Clear</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let canvas;
+
+        function setup() {
+            canvas = createCanvas(280, 280);
+            canvas.parent('canvas-container');
+            background(0);
+        }
+
+        function draw() {
+            strokeWeight(20);
+            stroke(255);
+            if (mouseIsPressed) {
+                line(pmouseX, pmouseY, mouseX, mouseY);
+            }
+        }
+
+        function clearCanvas() {
+            background(0);
+        }
+
+        function predict() {
+            let img = canvas.elt.toDataURL();
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image: img })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = `Prediction: ${data.prediction}`;
+            });
+        }
+    </script>
+</body>
+</html>
